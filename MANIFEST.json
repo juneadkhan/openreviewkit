@@ -1,0 +1,32 @@
+{
+  "package": "openreviewkit",
+  "version": "0.2.0",
+  "files": {
+    ".github/review/REVIEW.md": "97580324a3fa9c23da7d60918e55c9521c9bbd1ee7d2c8ceb662ed0ffc5fea20",
+    ".github/review/ROLES.md": "d564fc2b9820113b2100077ef8bf8117f9f7ad128111c201e9c12cd718949fff",
+    ".gitignore": "2fa95f99fd43a4aa3a8af36c70b375cd7d5b62578035c9a4ab710c4a6d5a339c",
+    "BENCHMARKS.md": "24eef88e5a3b1258222cc8fad8534c3a214b72a26f391137639aba634ebe9dee",
+    "LICENSE": "f5a23a0c736bc0605b77292f6d2a48b2d5d56d887d2076b8c68bd0d71eec2b99",
+    "PROVENANCE.md": "766b063baaa61087813127b567de71b674096dc6b9510b80e8ff797331dea63f",
+    "README.md": "8e047af651f11ce23b4874ea9971234d43a1d66170d95838a945f2a41b933eed",
+    "SETUP-PROMPT.md": "87a2119161d7ae202366c879f19d2a0a4645c8be6c2738532f4fe2a778c24ab2",
+    "SKILL.md": "f3ef0f2d1d75fe93280cadb8aac2278cd9d4a363404ed9a2c538e2906e166d86",
+    "config.example.json": "03b9954280165ff064ffe2cfbb82d3b1ac799033d4f2879da17abb90f247bb3e",
+    "package.json": "605a1a5069dc03d65164d90a7a852498bd1f4450c1e892da8df2e475bcdd480a",
+    "scripts/capture-diff.mjs": "21043a04e60ebf8b2e9b8d10b552d2a67b168916137184a672ca55ba54d206f8",
+    "scripts/demo.mjs": "5d728fa4f75dc3b12caa061d371c0d8a8ca05b6e3ce9858987a783d14a20627b",
+    "scripts/e2e.mjs": "9dab76651cda587f0f0e837d0d6122984fd603a8bd85f1039b35711b73e23488",
+    "scripts/install.mjs": "08b1c998281adeac3bd984cca585228d983eb2710ee5d7df060ddcafcbf34f17",
+    "scripts/local-review.mjs": "8cff83132df5c197b7d1bb6c9bddc9eeabe87e980b05afaf3a5d215bf187fcb0",
+    "scripts/openreviewkit-pipeline.mjs": "aa4adca61de156793df7a69896fddbc20d211d902fb775b6d823d9f0e7491fab",
+    "scripts/openreviewkit.mjs": "262e271a3601ba00cdcc2e38c5dde96b8e31add0d5dee52f8191aac3beff34a2",
+    "scripts/snapshot.mjs": "2a38b168b92e3f3ddc796c37f3aa19efbee804955f823833f88fd7c3506fc24b",
+    "scripts/subscription-pipeline.mjs": "10d9e71656df30345f94718996899d3618ff72a8ab52101864c4195551cd8261",
+    "tests/local-review.test.mjs": "e0cc073f26aba7225aced7fd5685f05491f48552dbd9233cbb86135185bedf44",
+    "tests/openreviewkit-pipeline.test.mjs": "2c29672dbfe44ae086f308a5f1ee5381b0d2765ed91cce49a522dad89a5c8b6c",
+    "tests/openreviewkit.test.mjs": "f01390f114e203fc2f1794a3c44444d7e2c954b34ce1d06c2d15115433d48ee1",
+    "validation/README.md": "2b99bd563699994b100d29a69ea93bb43bd4986ec18a03a849aa68e3af6cc88c",
+    "validation/live-smoke.json": "4896d178c2863e7a5bc559b90ea9260d9321d83032abe130229479e92bfeddad",
+    "workflow.yml": "19e7e93cdde79814a94250d60c38612108a5dc4c2936fa36c525f264720feea3"
+  }
+}

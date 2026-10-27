@@ -1,0 +1,10 @@
+{
+  "strong": "claude-opus-5-5",
+  "testSweep": "claude-sonnet-5-5",
+  "largeTestSweep": "claude-haiku-5-5",
+  "lowRiskFinder": "claude-sonnet-5-5",
+  "suggestionVerifier": "claude-sonnet-5-5",
+  "largeSuggestionVerifier": "claude-haiku-5-5",
+  "largeLines": 1500,
+  "largeSuggestionCap": 20
+}

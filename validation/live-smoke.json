@@ -1,0 +1,79 @@
+{
+  "release": "0.2.0",
+  "scope": "Two synthetic local end-to-end smoke cases; not a recall benchmark or GitHub delivery test",
+  "claudeCodeVersion": "2.1.299",
+  "nodeVersion": "22.23.2",
+  "platform": "darwin-arm64",
+  "authentication": "claude.ai subscription",
+  "meteredApiSpendUsd": 0,
+  "failurePathRegressionTests": "49 deterministic checks passed, including language routing, legacy install protection and failed/missing process telemetry",
+  "results": [
+    {
+      "name": "regression",
+      "completedAt": "2026-10-27T18:46:16.094Z",
+      "passed": true,
+      "head": "a195073aea3b7fcb33d33bfca281476c98b52d8d",
+      "base": "845ee646aea84a967acf51cabe1b969d207feef2",
+      "verdict": "needs_work",
+      "exit": 1,
+      "complete": true,
+      "blockers": [
+        {
+          "severity": "P1",
+          "title": "Ownership check removed: readRecord returns any user's record value instead of throwing Forbidden",
+          "path": "src/record.mjs",
+          "line": 2,
+          "reason": "The PR deletes the `record.ownerId !== user.id` guard and puts no check anywhere else. As a result, `readRecord` now returns `{ id, value }` to a user who does not own the record. This breaks the README.md:3-5 contract that non-owners get Forbidden before any value is returned, and it lets any user read other users' data.",
+          "fix": "Restore `if (record.ownerId !== user.id) throw new Error('Forbidden');` as the first statement of `readRecord`, before the return.",
+          "validation": "Add a test: `readRecord({ id: 'u2' }, { id: 'r1', ownerId: 'u1', value: 'secret' })` should throw `Error('Forbidden')`, and `readRecord({ id: 'u1' }, { id: 'r1', ownerId: 'u1', value: 'secret' })` should return exactly `{ id: 'r1', value: 'secret' }`."
+        }
+      ],
+      "processes": 4,
+      "roles": [
+        "bug-finder",
+        "sweep-finder",
+        "finding-verifier",
+        "decider"
+      ],
+      "elapsedSeconds": 35,
+      "cliReportedCostUsd": 0.1676037,
+      "sourceUnchanged": true,
+      "models": [
+        "claude-opus-5-5",
+        "claude-sonnet-5-5"
+      ]
+    },
+    {
+      "name": "control",
+      "completedAt": "2026-10-27T18:46:45.437Z",
+      "passed": true,
+      "head": "f439a08f2ddfa208ec658ff75ed0740e577f7985",
+      "base": "845ee646aea84a967acf51cabe1b969d207feef2",
+      "verdict": "no_blockers",
+      "exit": 0,
+      "complete": true,
+      "blockers": [],
+      "processes": 3,
+      "roles": [
+        "bug-finder",
+        "sweep-finder",
+        "decider"
+      ],
+      "elapsedSeconds": 16,
+      "cliReportedCostUsd": 0.08195469999999999,
+      "sourceUnchanged": true,
+      "models": [
+        "claude-opus-5-5",
+        "claude-sonnet-5-5"
+      ]
+    }
+  ],
+  "testedImplementationSha256": {
+    "scripts/local-review.mjs": "8cff83132df5c197b7d1bb6c9bddc9eeabe87e980b05afaf3a5d215bf187fcb0",
+    "scripts/openreviewkit-pipeline.mjs": "aa4adca61de156793df7a69896fddbc20d211d902fb775b6d823d9f0e7491fab",
+    "scripts/openreviewkit.mjs": "262e271a3601ba00cdcc2e38c5dde96b8e31add0d5dee52f8191aac3beff34a2",
+    "scripts/snapshot.mjs": "2a38b168b92e3f3ddc796c37f3aa19efbee804955f823833f88fd7c3506fc24b",
+    ".github/review/ROLES.md": "d564fc2b9820113b2100077ef8bf8117f9f7ad128111c201e9c12cd718949fff",
+    ".github/review/REVIEW.md": "97580324a3fa9c23da7d60918e55c9521c9bbd1ee7d2c8ceb662ed0ffc5fea20"
+  }
+}

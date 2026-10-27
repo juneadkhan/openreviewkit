@@ -1,0 +1,92 @@
+# Install through scripts/install.mjs --ci. Policy comes from the trusted default
+# branch; PR source is an immutable checkout. Fork PRs are deliberately skipped.
+name: OpenReviewKit
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review, reopened, edited]
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: Open same-repository PR number
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: openreviewkit-${{ github.event.action == 'edited' && !github.event.changes.base && github.run_id || github.event.pull_request.number || inputs.pr }}
+  cancel-in-progress: true
+jobs:
+  review:
+    if: >-
+      (github.event_name == 'pull_request' && !github.event.pull_request.draft &&
+       github.event.pull_request.head.repo.full_name == github.repository &&
+       (github.event.action != 'edited' || github.event.changes.base)) ||
+      github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      pull-requests: write
+      actions: read
+    defaults:
+      run:
+        working-directory: policy/.review/openreviewkit
+    env:
+      REVIEW_PR: ${{ github.event.pull_request.number || inputs.pr }}
+      GH_TOKEN: ${{ github.token }}
+      REVIEW_MAX_PARALLEL: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: __DEFAULT_BRANCH__
+          path: policy
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.23.2'
+      - name: Wait for pushes to settle
+        if: github.event_name == 'pull_request'
+        run: sleep 60
+      - name: Capture immutable target
+        id: target
+        env:
+          REVIEW_EVENT_HEAD: ${{ github.event.pull_request.head.sha }}
+        run: node scripts/openreviewkit.mjs prepare
+      - uses: actions/checkout@v4
+        if: steps.target.outputs.head != ''
+        with:
+          ref: ${{ steps.target.outputs.head }}
+          path: policy/.review/openreviewkit/review-source
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Capture change and prior-review delta
+        if: steps.target.outputs.head != ''
+        env:
+          REVIEW_BASE: ${{ steps.target.outputs.base }}
+          REVIEW_HEAD: ${{ steps.target.outputs.head }}
+          REVIEW_PREVIOUS: ${{ steps.target.outputs.previous }}
+        run: node scripts/capture-diff.mjs
+      - name: Install pinned Claude Code
+        if: steps.target.outputs.head != ''
+        run: npm install --global @anthropic-ai/claude-code@2.1.299
+      - name: Review using subscription
+        if: steps.target.outputs.head != ''
+        id: claude
+        continue-on-error: true
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.OPENREVIEWKIT_OAUTH_TOKEN }}
+          CLAUDE_CODE_PROMPT_CACHE_TTL: 5m
+        run: node scripts/subscription-pipeline.mjs
+      - name: Publish advisory discussion comment
+        if: always() && !cancelled() && steps.target.outputs.head != ''
+        env:
+          CLAUDE_EXECUTION: ${{ steps.claude.outcome }}
+        run: node scripts/openreviewkit.mjs publish
+      - uses: actions/upload-artifact@v4
+        if: always() && !cancelled() && steps.target.outputs.head != ''
+        with:
+          name: review-${{ github.run_id }}
+          path: |
+            policy/.review/openreviewkit/review-assessment.json
+            policy/.review/openreviewkit/review-pipeline.json
+            policy/.review/openreviewkit/review-work/evidence.json

@@ -1,0 +1,14 @@
+{
+  "name": "openreviewkit",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.20"
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "demo": "node scripts/demo.mjs",
+    "review": "node scripts/local-review.mjs"
+  }
+}

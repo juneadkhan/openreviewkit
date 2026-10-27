@@ -1,0 +1,14 @@
+review-runs/
+node_modules/
+*.local.json
+.env
+.env.*
+!.env.example
+.DS_Store
+review-source/
+review-work/
+review-*.json
+review-*.txt
+review*.patch
+review.md
+*.log
