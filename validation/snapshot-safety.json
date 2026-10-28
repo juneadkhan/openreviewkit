@@ -1,0 +1,79 @@
+{
+  "release": "0.2.2",
+  "validation": "Deterministic filesystem and Git-archive integration checks; no new model-quality claim",
+  "testsPassed": 58,
+  "allowed": [
+    "Regular committed files",
+    "Contained file, chained and directory symlinks, with existing regular targets",
+    "Repeated acyclic internal directory references"
+  ],
+  "rejected": [
+    "Lexical or canonical escapes",
+    "Sibling paths that merely share the root prefix",
+    "Links into Git metadata",
+    "Dangling links",
+    "File and directory cycles",
+    "Special files, directly or through links"
+  ],
+  "checks": [
+    "Internal file/chained/directory/absolute-contained links",
+    "Direct and indirect escapes",
+    "Git metadata",
+    "Dangling and file cycles",
+    "Ancestor and cross-directory cycles",
+    "FIFO rejection",
+    "Committed links through native Git archive preparation",
+    "External links rejected before review execution"
+  ],
+  "realRepositoryTopologyChecks": [
+    {
+      "repo": "ai-code-review-evaluation/sentry-greptile",
+      "testedHead": "8ab88145113dd23a930e23b9cbbcf8b30e4c0b17",
+      "links": 0,
+      "supported": true,
+      "result": "supported",
+      "method": "Exact Git tree/link topology with empty placeholders; no source code executed or model call"
+    },
+    {
+      "repo": "ai-code-review-evaluation/cal.com-greptile",
+      "testedHead": "e043a5efd872362a3fc146ed0d9ce4393e316c1e",
+      "links": 1,
+      "supported": false,
+      "result": "Source snapshot contains a dangling or cyclic symlink.",
+      "method": "Exact Git tree/link topology with empty placeholders; no source code executed or model call"
+    },
+    {
+      "repo": "ai-code-review-evaluation/grafana-greptile",
+      "testedHead": "3647ba7360b8d157e4a294a650a365b6aca070d8",
+      "links": 4,
+      "supported": true,
+      "result": "supported",
+      "method": "Exact Git tree/link topology with empty placeholders; no source code executed or model call"
+    },
+    {
+      "repo": "ai-code-review-evaluation/keycloak-greptile",
+      "testedHead": "3214b188de808fdb0fff335556b686f1b0a63218",
+      "links": 19,
+      "supported": true,
+      "result": "supported",
+      "method": "Exact Git tree/link topology with empty placeholders; no source code executed or model call"
+    },
+    {
+      "repo": "ai-code-review-evaluation/discourse-greptile",
+      "testedHead": "ffbaf8c54269df2ce510de91245760fddce09896",
+      "links": 14,
+      "supported": true,
+      "result": "supported",
+      "method": "Exact Git tree/link topology with empty placeholders; no source code executed or model call"
+    }
+  ],
+  "implementationSha256": {
+    "scripts/snapshot.mjs": "1abb60bbf0c0c0b6719816206a1937d807a41014c226d239e26621d96c0821e0"
+  },
+  "limits": [
+    "Not operating-system confinement or a race-proof filesystem sandbox",
+    "Topology tests use exact public Git tree and link topology with empty file placeholders; no project code executed",
+    "Cal.com topology remains unsupported because of a dangling development environment-file link",
+    "0.2.1 live smoke hashes remain historical evidence; this change is a filesystem-validation change"
+  ]
+}

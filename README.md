@@ -64,7 +64,7 @@ for the sample, scoring rules, repeat runs and limits.
 
 ## Download a versioned snapshot
 
-For a fixed snapshot, download the [v0.2.1 release](https://github.com/juneadkhan/openreviewkit/releases/tag/v0.2.1)
+For a fixed snapshot, download the [v0.2.2 release](https://github.com/juneadkhan/openreviewkit/releases/tag/v0.2.2)
 and run the commands below from the extracted folder. The implementation and
 its tests live together; no hosted service or background updater is required.
 
@@ -116,8 +116,11 @@ archive of the selected committed head; uncommitted and untracked files are
 excluded. It writes a separate temporary workspace and never modifies your
 repository. Use `--out /path/to/new-directory` to retain a named workspace.
 
-This edition refuses committed symlinks before model execution, including in CI,
-so an archived link cannot expose a file outside the selected source snapshot.
+Committed file and directory symlinks are supported when both their lexical
+destination and resolved target stay inside the source snapshot. The check rejects
+escaping or dangling links, directory cycles, Git-metadata links and special files
+before model execution, including in CI. A linked but untracked local environment
+file is not imported into the review. This check does not provide an OS sandbox.
 
 Live execution first checks CLI subscription authentication. API/provider
 environment variables are removed for the subprocess, with no API fallback.
@@ -182,14 +185,16 @@ output remain incomplete, not clean.
 
 ## Release status
 
-Release 0.2.1 adds real stage and process progress output. The local reviewer
+Release 0.2.2 adds confined source-snapshot symlink support, with 58 deterministic
+checks passing. See [snapshot safety validation](validation/snapshot-safety.json).
+It retains 0.2.1's real stage and process progress output. The local reviewer
 writes timestamped operational updates to stderr while preserving report files
 and exit codes. You can see coverage, process starts/retries/completions, candidate
 merging and verification counts. Failed processes remain visibly incomplete.
 Progress omits prompts, source, file paths, raw errors and custom model identifiers;
 it is operational status, not a guarantee that every finding is correct.
 
-The progress-enabled local path passed a fresh multi-file pagination regression
+The 0.2.1 progress-enabled local path passed a fresh multi-file pagination regression
 and a clean control using a real Claude Code subscription. See
 [progress validation](validation/progress-smoke.json). The earlier two-case
 [0.2.0 smoke results](validation/README.md) remain historical evidence, with their

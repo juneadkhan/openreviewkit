@@ -1,6 +1,6 @@
 {
   "package": "openreviewkit",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "files": {
     ".github/review/REVIEW.md": "97580324a3fa9c23da7d60918e55c9521c9bbd1ee7d2c8ceb662ed0ffc5fea20",
     ".github/review/ROLES.md": "d564fc2b9820113b2100077ef8bf8117f9f7ad128111c201e9c12cd718949fff",
@@ -8,11 +8,11 @@
     "BENCHMARKS.md": "24eef88e5a3b1258222cc8fad8534c3a214b72a26f391137639aba634ebe9dee",
     "LICENSE": "f5a23a0c736bc0605b77292f6d2a48b2d5d56d887d2076b8c68bd0d71eec2b99",
     "PROVENANCE.md": "766b063baaa61087813127b567de71b674096dc6b9510b80e8ff797331dea63f",
-    "README.md": "99331592a01b190f29db851d6618661312ad7ff06590944a0663d97b8851cb53",
+    "README.md": "8ac6e2067dba33ad1f688351c81d27b20fae323ab2591e6a3a7e8b19536892a1",
     "SETUP-PROMPT.md": "87a2119161d7ae202366c879f19d2a0a4645c8be6c2738532f4fe2a778c24ab2",
     "SKILL.md": "f3ef0f2d1d75fe93280cadb8aac2278cd9d4a363404ed9a2c538e2906e166d86",
     "config.example.json": "03b9954280165ff064ffe2cfbb82d3b1ac799033d4f2879da17abb90f247bb3e",
-    "package.json": "3cb52d1d05c3bc4654f742fa9da56570e18b35e486dcbf0f250284d00bfdead7",
+    "package.json": "14adbe057b1d4563e94e1bf783db5ba9f37e7f4dc2234245d5c59e0c89ad50c0",
     "scripts/capture-diff.mjs": "21043a04e60ebf8b2e9b8d10b552d2a67b168916137184a672ca55ba54d206f8",
     "scripts/demo.mjs": "5d728fa4f75dc3b12caa061d371c0d8a8ca05b6e3ce9858987a783d14a20627b",
     "scripts/e2e.mjs": "9dab76651cda587f0f0e837d0d6122984fd603a8bd85f1039b35711b73e23488",
@@ -21,15 +21,16 @@
     "scripts/openreviewkit-pipeline.mjs": "2d20162b439315fff0a2edf0f61c92aa32ba94341450dca090ad2af255e70e2e",
     "scripts/openreviewkit.mjs": "262e271a3601ba00cdcc2e38c5dde96b8e31add0d5dee52f8191aac3beff34a2",
     "scripts/progress.mjs": "c3a520eacdac7449871f9348a9dbb9d91f422fb8e65082a8cc4dcfd0846b1ef2",
-    "scripts/snapshot.mjs": "2a38b168b92e3f3ddc796c37f3aa19efbee804955f823833f88fd7c3506fc24b",
+    "scripts/snapshot.mjs": "1abb60bbf0c0c0b6719816206a1937d807a41014c226d239e26621d96c0821e0",
     "scripts/subscription-pipeline.mjs": "e797e10b12d1bc3586891a4fa4a82b73947b6d53caf8ac9aff0d01dcc8c4729b",
-    "tests/local-review.test.mjs": "e0cc073f26aba7225aced7fd5685f05491f48552dbd9233cbb86135185bedf44",
+    "tests/local-review.test.mjs": "51c87b29655fbcb69595737a20730fc1fae274334e4fcb3a9cef9252b74ede01",
     "tests/openreviewkit-pipeline.test.mjs": "2bf7d75774cb8926d951fb4ec2c6c22a2067900172b3248d39bde483460979b5",
     "tests/openreviewkit.test.mjs": "f01390f114e203fc2f1794a3c44444d7e2c954b34ce1d06c2d15115433d48ee1",
     "tests/progress.test.mjs": "00a1fd683219d27908765f4c5de37b403dc202e22af5d5a74d15f15ba695545e",
     "validation/README.md": "2b99bd563699994b100d29a69ea93bb43bd4986ec18a03a849aa68e3af6cc88c",
     "validation/live-smoke.json": "4896d178c2863e7a5bc559b90ea9260d9321d83032abe130229479e92bfeddad",
     "validation/progress-smoke.json": "59f58f79876ba0b789cd3e3a0793e2076f951080bd7f949e5cea2fbed36429f3",
+    "validation/snapshot-safety.json": "e9b903d4eb7e43b9d139e0ad3e7e027d0aa5987f7436028c05edc122a95def10",
     "workflow.yml": "19e7e93cdde79814a94250d60c38612108a5dc4c2936fa36c525f264720feea3"
   }
 }
