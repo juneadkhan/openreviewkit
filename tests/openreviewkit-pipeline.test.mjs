@@ -423,19 +423,54 @@ async function fakeReview(env = {}) {
     [diff('src/services/x.ts', 40), diff('src/services/y.ts', 10)].join('\n')
   );
   const log = join(dir, 'calls.jsonl');
+  const progress = [];
   const { output, stats } = await runPipeline({
     cwd: dir,
     claude,
     env: { ...process.env, FAKE_LOG: log, ...env },
-    warmMs: 10_000
+    warmMs: 10_000,
+    onProgress: (event) => {
+      progress.push(event);
+      if (env.THROW_PROGRESS) throw new Error('display unavailable');
+    }
   });
   const calls = readFileSync(log, 'utf8')
     .trim()
     .split('\n')
     .map((l) => JSON.parse(l));
   const evidence = JSON.parse(readFileSync(join(dir, 'review-work/evidence.json'), 'utf8'));
-  return { dir, output, stats, calls, evidence };
+  return { dir, output, stats, calls, evidence, progress };
 }
+
+test('live progress follows real process execution and agrees with saved evidence', async () => {
+  const { stats, evidence, progress } = await fakeReview();
+  assert.equal(progress[0].type, 'plan');
+  assert.equal(progress.at(-1).type, 'pipeline_complete');
+  assert.equal(progress.filter((e) => e.type === 'process_start').length, stats.processes.length);
+  for (const event of progress.filter((e) => e.type === 'process_complete')) {
+    const start = progress.find((e) => e.type === 'process_start' && e.process === event.process);
+    assert.ok(start && start.elapsedMs <= event.elapsedMs);
+    assert.equal(event.ok, stats.processes[event.process - 1].ok);
+  }
+  const verified = progress.find((e) => e.type === 'verification_complete');
+  assert.equal(
+    verified.confirmed,
+    evidence.candidates.filter((c) => c.verdict.verdict === 'confirmed').length
+  );
+  const merge = progress.find((e) => e.type === 'merge_complete');
+  assert.ok(merge.reports > merge.candidates);
+  assert.equal(progress.at(-1).failed, false);
+});
+
+test('progress failures are visible and a broken display cannot alter review execution', async () => {
+  const failed = await fakeReview({ FAKE_DROP: 'sweep-finder' });
+  assert.ok(failed.progress.some((e) => e.type === 'process_retry' && e.role === 'sweep-finder'));
+  assert.ok(failed.progress.some((e) => e.type === 'process_complete' && e.ok === false));
+  assert.equal(failed.progress.at(-1).failed, true);
+  const brokenDisplay = await fakeReview({ THROW_PROGRESS: '1' });
+  assert.equal(brokenDisplay.output.verdict, 'needs_work');
+  assert.ok(brokenDisplay.stats.processes.every((p) => p.ok));
+});
 
 test('a review verifies a triaged duplicate once, on the model its severity calls for', async () => {
   const { output, stats, calls, evidence } = await fakeReview();

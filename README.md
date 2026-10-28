@@ -64,7 +64,7 @@ for the sample, scoring rules, repeat runs and limits.
 
 ## Download a versioned snapshot
 
-For a fixed snapshot, download the [v0.2.0 release](https://github.com/juneadkhan/openreviewkit/releases/tag/v0.2.0)
+For a fixed snapshot, download the [v0.2.1 release](https://github.com/juneadkhan/openreviewkit/releases/tag/v0.2.1)
 and run the commands below from the extracted folder. The implementation and
 its tests live together; no hosted service or background updater is required.
 
@@ -182,13 +182,21 @@ output remain incomplete, not clean.
 
 ## Release status
 
-Release 0.2.0. The installed local path is validated with live subscription smoke
-tests on October 27, 2026: one seeded ownership regression was verified as P1 and
-one behavior-preserving control returned no blockers. Every process completed on the final runs.
-This is not a recall benchmark. See [validation/README.md](validation/README.md)
-and [PROVENANCE.md](PROVENANCE.md). The optional GitHub Actions comment-delivery
-path and broader public-edition recall remain unqualified. Installing from the
-public repository is a separate check from running the optional CI integration.
+Release 0.2.1 adds real stage and process progress output. The local reviewer
+writes timestamped operational updates to stderr while preserving report files
+and exit codes. You can see coverage, process starts/retries/completions, candidate
+merging and verification counts. Failed processes remain visibly incomplete.
+Progress omits prompts, source, file paths, raw errors and custom model identifiers;
+it is operational status, not a guarantee that every finding is correct.
+
+The progress-enabled local path passed a fresh multi-file pagination regression
+and a clean control using a real Claude Code subscription. See
+[progress validation](validation/progress-smoke.json). The earlier two-case
+[0.2.0 smoke results](validation/README.md) remain historical evidence, with their
+original tested implementation hashes. Neither smoke set is a recall benchmark.
+The optional GitHub Actions comment-delivery path and broader public-edition
+recall remain unqualified. Installing from the public repository is a separate
+check from running the optional CI integration.
 
 To reproduce the tiny smoke set, prepare first, inspect it, then run the cases
 serially. Live commands use subscription quota and are opt-in:

@@ -1,0 +1,61 @@
+{
+  "release": "0.2.1",
+  "scope": "Real subscription operation and truthful progress on synthetic fixtures; not a recall benchmark or a GitHub comment-delivery test",
+  "deterministicTestsPassed": 53,
+  "meteredApiSpendUsd": 0,
+  "regression": {
+    "synthetic": true,
+    "change": "Four-file paginated document export; owner scoping lost on continuation pages",
+    "base": "c3ebfb9c9454ca3979ad5ea86467e649bbf15047",
+    "head": "85555a00cc712917ee74a6f2b25da68207fcd583",
+    "verdict": "needs_work",
+    "blockers": [
+      {
+        "severity": "P1",
+        "title": "Export pages after the first omit ownerId and return other users' documents",
+        "path": "src/services/export.mjs",
+        "line": 25,
+        "reason": "When a user has more documents than one page holds, later pages call `repository.listDocuments({ cursor: page.nextCursor })` without `ownerId`. The repository treats a missing `ownerId` as a query over all owners (`src/repositories/documents.mjs:4-6`). The export then leaks other users' document ids, titles and dates. It can also skip or duplicate the user's own documents, because the cursor is an offset into the owner-filtered list but is applied to the unfiltered one.",
+        "fix": "Keep the owner scope on every page. Build the query once from `{ ownerId: userId }` and call `repository.listDocuments({ ownerId: userId, cursor: page.nextCursor })` for later pages, or run one loop with `cursor` starting as `undefined`.",
+        "validation": "Use a repository with page size 2 and documents [a1(u1), b1(u2), a2(u1), b2(u2), a3(u1)]. `handleExport({ id: 'u1' }, repo)` should return exactly ['a1','a2','a3'] with `count` 3 and no u2 documents. The current code returns ['a1','a2','a2','b2','a3']."
+      }
+    ],
+    "processes": 11,
+    "allProcessesCompleted": true,
+    "elapsedSeconds": 73,
+    "cliReportedCostUsd": 0.6921074,
+    "candidateReports": 14,
+    "mergedNewCandidates": 6,
+    "verifiedConfirmed": 5,
+    "verifiedRefuted": 1
+  },
+  "control": {
+    "name": "control",
+    "completedAt": "2026-10-28T00:29:36.791Z",
+    "passed": true,
+    "head": "ff61439b8fe1b34fd9321438e536bb97b4c9599b",
+    "base": "42b2b00d621270accf0a0c10372b0887b04bb845",
+    "verdict": "no_blockers",
+    "exit": 0,
+    "complete": true,
+    "processes": 3,
+    "roles": ["bug-finder", "sweep-finder", "decider"],
+    "elapsedSeconds": 21,
+    "cliReportedCostUsd": 0.2492422,
+    "sourceUnchanged": true
+  },
+  "testedImplementationSha256": {
+    "scripts/progress.mjs": "c3a520eacdac7449871f9348a9dbb9d91f422fb8e65082a8cc4dcfd0846b1ef2",
+    "scripts/local-review.mjs": "ccb1deeb5d041951ddb7eb6142f0261ec5f2a0ac659388490d4c48b1201cd8f5",
+    "scripts/openreviewkit-pipeline.mjs": "2d20162b439315fff0a2edf0f61c92aa32ba94341450dca090ad2af255e70e2e",
+    "scripts/openreviewkit.mjs": "262e271a3601ba00cdcc2e38c5dde96b8e31add0d5dee52f8191aac3beff34a2",
+    "scripts/subscription-pipeline.mjs": "e797e10b12d1bc3586891a4fa4a82b73947b6d53caf8ac9aff0d01dcc8c4729b",
+    ".github/review/ROLES.md": "d564fc2b9820113b2100077ef8bf8117f9f7ad128111c201e9c12cd718949fff",
+    ".github/review/REVIEW.md": "97580324a3fa9c23da7d60918e55c9521c9bbd1ee7d2c8ceb662ed0ffc5fea20"
+  },
+  "limits": [
+    "Fixtures are deliberately seeded and synthetic",
+    "Progress metadata omits raw errors and model/source text",
+    "Large-change routing, incremental re-review and live GitHub delivery not qualified by these runs"
+  ]
+}

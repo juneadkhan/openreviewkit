@@ -18,6 +18,7 @@ import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { schema as reviewSchema } from './openreviewkit.mjs';
 import { assertSnapshot } from './snapshot.mjs';
+import { createProgressReporter } from './progress.mjs';
 
 const OPUS = 'claude-opus-5-5';
 const SONNET = 'claude-sonnet-5-5';
@@ -628,9 +629,16 @@ export async function runPipeline({
   claude = process.env.CLAUDE_BIN ?? 'claude',
   env = process.env,
   warmMs = WARM_MS,
-  rewarmMs = REWARM_MS
+  rewarmMs = REWARM_MS,
+  onProgress = () => {}
 } = {}) {
   const started = Date.now();
+  // Observability must never turn a successful review into a failed one.
+  const progress = (type, fields = {}) => {
+    try {
+      onProgress({ type, elapsedMs: Date.now() - started, ...fields });
+    } catch {}
+  };
   if (existsSync(join(cwd, 'review-source'))) assertSnapshot(join(cwd, 'review-source'));
   const read = (f) => readFileSync(join(cwd, f), 'utf8');
   const target = JSON.parse(read('review-target.json'));
@@ -650,6 +658,7 @@ export async function runPipeline({
   if (!Number.isInteger(parallel) || parallel < 1 || parallel > 16)
     throw new Error('REVIEW_MAX_PARALLEL must be an integer from 1 to 16.');
   const run = limiter(parallel);
+  progress('plan', { files: files.length, finders: tasks.length, parallel });
 
   mkdirSync(join(cwd, 'review-work'), { recursive: true });
   const systemFile = 'review-work/system.md';
@@ -756,6 +765,9 @@ export async function runPipeline({
       const gate = await cache.enter(model);
       const record = { role, model, start: Date.now() - started, attempts: 0 };
       processes.push(record);
+      const processNumber = processes.length;
+      const metadata = { process: processNumber, role, model };
+      progress('process_start', metadata);
       const args = [
         '-p',
         prompt,
@@ -791,6 +803,8 @@ export async function runPipeline({
       let result;
       do {
         record.attempts += 1;
+        if (record.attempts > 1)
+          progress('process_retry', { ...metadata, attempt: record.attempts });
         result = await attempt(record, args, timeoutMin, ROLE_FIELD[role], gate);
       } while (!result.output && !result.timedOut && record.attempts < 2);
       Object.assign(record, {
@@ -798,6 +812,7 @@ export async function runPipeline({
         ok: Boolean(result.output)
       });
       if (record.ok) delete record.error;
+      progress('process_complete', { ...metadata, ok: record.ok });
       return result.output;
     });
 
@@ -873,6 +888,8 @@ export async function runPipeline({
   // Near-identical candidates merge without a model; the triage then merges
   // the duplicates that word overlap misses, so each defect is verified once.
   const fresh = [];
+  const reports = findings.reduce((n, f) => n + f.candidates.length, 0);
+  progress('discovery_complete', { reports, failed: findings.filter((f) => !f.ok).length });
   for (const finder of findings)
     for (const c of finder.candidates) {
       const twin = [...queued, ...fresh].find((q) => sameCandidate(q.candidate, c));
@@ -909,6 +926,7 @@ export async function runPipeline({
         })
       : null;
   const merged = mergeDuplicates(fresh, triage?.duplicates);
+  progress('merge_complete', { reports, candidates: merged.length });
   const { kept, dropped } = large
     ? capSuggestions(merged, tuning.largeSuggestionCap)
     : { kept: merged, dropped: 0 };
@@ -918,6 +936,14 @@ export async function runPipeline({
   for (const group of groupCandidates(kept)) verifyGroup(group, '');
 
   const verified = (await Promise.all(verdicts)).flat();
+  progress('verification_complete', {
+    confirmed: verified.filter((e) => e.verdict.verdict === 'confirmed').length,
+    refuted: verified.filter((e) => e.verdict.verdict === 'refuted').length,
+    unresolved: verified.filter(
+      (e) => e.verdict.verdict !== 'confirmed' && e.verdict.verdict !== 'refuted'
+    ).length,
+    unverified: dropped
+  });
   const evidence = {
     finders: findings.map(({ candidates, ...f }) => f),
     candidates: verified.map(({ id, candidate, reporters, verdict }) => ({
@@ -970,11 +996,16 @@ export async function runPipeline({
   };
   writeFileSync(join(cwd, 'review-output.json'), JSON.stringify(output));
   writeFileSync(join(cwd, 'review-pipeline.json'), JSON.stringify(stats, null, 2));
+  progress('pipeline_complete', {
+    completed: processes.filter((p) => p.ok).length,
+    total: processes.length,
+    failed: processes.some((p) => !p.ok)
+  });
   return { output, stats };
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
-  const { output, stats } = await runPipeline();
+  const { output, stats } = await runPipeline({ onProgress: createProgressReporter() });
   console.log(
     `Review pipeline: ${stats.finders} finders, ${stats.candidates} candidates, ` +
       `${Math.round(stats.wall_ms / 1000)}s, verdict ${output?.verdict ?? 'none'}.`

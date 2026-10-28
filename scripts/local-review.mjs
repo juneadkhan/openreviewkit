@@ -22,6 +22,7 @@ import {
 } from './openreviewkit-pipeline.mjs';
 import { assessPipeline, commentPayload } from './openreviewkit.mjs';
 import { assertSnapshot } from './snapshot.mjs';
+import { createProgressReporter } from './progress.mjs';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const git = (repo, args) =>
@@ -142,7 +143,8 @@ export async function main(argv = process.argv.slice(2)) {
   const { output, stats } = await runPipeline({
     cwd: result.workspace,
     claude,
-    env
+    env,
+    onProgress: createProgressReporter()
   });
   const assessment = assessPipeline(
     {
